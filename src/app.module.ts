@@ -1,22 +1,58 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { createObserveModule } from '@nestjs/observe';
 import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { ConfigModule } from '@nestjs/config';
+import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { LoggingModule } from '../common/logging/logging.module.js';
+import { RequestContextMiddleware } from '../common/logging/request-context.middleware.js';
+import { HttpLoggingInterceptor } from '../common/logging/http-logging.interceptor.js';
+import { HttpExceptionFilter } from '../common/filters/http-exception.filter.js';
+import { RateLimiterGuard } from '../common/guards/rate-limiter.guard';
+import { ApiKeyGuard } from '../common/guards/api-key.guard';
+import { TenantIdGuard } from '../common/guards/tenant-id.guard';
+import { SecurityHeadersMiddleware } from '../common/middleware/security-headers.middleware';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
 @Module({
   imports: [
-    // Distributed tracing, auto-correlated logs, request/job metrics, error
-    // telemetry, alarms, and more — out of the box. Sign up at https://observe.nestjs.com,
-    // then run `npx @nestjs/observe link` to write your key pair into .env.
-    ObserveModule.forRoot({
-      appKey: process.env.OBSERVE_APP_KEY ?? 'YOUR_APP_KEY',
-      appSecret: process.env.OBSERVE_APP_SECRET ?? 'YOUR_APP_SECRET',
-      serviceId: 'CrossLink-API-Core',
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: ['.env.local', '.env'],
     }),
+    LoggingModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    {
+      provide: APP_FILTER,
+      useClass: HttpExceptionFilter,
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: HttpLoggingInterceptor,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RateLimiterGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: ApiKeyGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: TenantIdGuard,
+    },
+  ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(RequestContextMiddleware, SecurityHeadersMiddleware)
+      .forRoutes('{*path}');
+  }
+}
+
+
+

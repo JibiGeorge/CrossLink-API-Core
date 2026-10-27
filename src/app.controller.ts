@@ -1,12 +1,18 @@
 import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
+import { Public } from '../common/decorators/public.decorator';
+import { SkipTenantCheck } from '../common/decorators/skip-tenant-check.decorator';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor() { }
 
-  @Get()
-  getHello(): string {
-    return this.appService.getHello();
+  @Public()
+  @SkipTenantCheck()
+  @Get('healthCheck')
+  getHealthCheck() {
+    return {
+      message: 'Health check passed!',
+    };
   }
 }
+
