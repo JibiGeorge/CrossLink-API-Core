@@ -1,12 +1,12 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { LoggingService } from '../common/logging/logging.service';
+import { LoggingService } from './common/logging/logging.service';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { json, urlencoded } from 'express';
 import cookieParser from 'cookie-parser';
 import { ValidationPipe } from '@nestjs/common';
-import { HttpExceptionFilter } from '../common/filters/http-exception.filter';
-import { RequestContextService } from '../common/logging/request-context.service';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { RequestContextService } from './common/logging/request-context.service';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {

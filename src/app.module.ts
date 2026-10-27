@@ -3,14 +3,14 @@ import { createObserveModule } from '@nestjs/observe';
 import { AppController } from './app.controller';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
-import { LoggingModule } from '../common/logging/logging.module.js';
-import { RequestContextMiddleware } from '../common/logging/request-context.middleware.js';
-import { HttpLoggingInterceptor } from '../common/logging/http-logging.interceptor.js';
-import { HttpExceptionFilter } from '../common/filters/http-exception.filter.js';
-import { RateLimiterGuard } from '../common/guards/rate-limiter.guard';
-import { ApiKeyGuard } from '../common/guards/api-key.guard';
-import { TenantIdGuard } from '../common/guards/tenant-id.guard';
-import { SecurityHeadersMiddleware } from '../common/middleware/security-headers.middleware';
+import { LoggingModule } from './common/logging/logging.module.js';
+import { RequestContextMiddleware } from './common/logging/request-context.middleware.js';
+import { HttpLoggingInterceptor } from './common/logging/http-logging.interceptor.js';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter.js';
+import { RateLimiterGuard } from './common/guards/rate-limiter.guard';
+import { ApiKeyGuard } from './common/guards/api-key.guard';
+import { TenantIdGuard } from './common/guards/tenant-id.guard';
+import { SecurityHeadersMiddleware } from './common/middleware/security-headers.middleware';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
